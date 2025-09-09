@@ -1,0 +1,57 @@
+[
+  {
+    "placa": "VIP-333",
+    "tipo": "CARRO",
+    "esClienteTienda": true
+  },
+  {
+    "placa": "CAR-001",
+    "tipo": "CARRO",
+    "esClienteTienda": true
+  },
+  {
+    "placa": "CAR-002",
+    "tipo": "CARRO",
+    "esClienteTienda": true
+  },
+  {
+    "placa": "CAR-003",
+    "tipo": "CARRO",
+    "esClienteTienda": true
+  },
+  {
+    "placa": "CAR-004",
+    "tipo": "CARRO",
+    "esClienteTienda": true
+  },
+  {
+    "placa": "CAR-005",
+    "tipo": "CARRO",
+    "esClienteTienda": true
+  },
+  {
+    "placa": "MOT-001",
+    "tipo": "MOTO",
+    "esClienteTienda": true
+  },
+  {
+    "placa": "MOT-002",
+    "tipo": "MOTO",
+    "esClienteTienda": true
+  },
+  {
+    "placa": "MOT-003",
+    "tipo": "MOTO",
+    "esClienteTienda": true
+  },
+  {
+    "placa": "VIP-001",
+    "tipo": "CARRO",
+    "esClienteTienda": true
+  },
+  {
+    "placa": "VIP-002",
+    "tipo": "MOTO",
+    "esClienteTienda": true
+  }
+]

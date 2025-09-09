@@ -9,8 +9,8 @@ export class ParkingServiceImpl implements ParkingService {
         private readonly processExitUseCase: ProcessExitUseCase
     ) {}
 
-    async registerVehicleEntry(placa: string): Promise<VehicleEntry> {
-        return await this.registerEntryUseCase.execute(placa);
+    async registerVehicleEntry(placa: string, tipo: string): Promise<VehicleEntry> {
+        return await this.registerEntryUseCase.execute(placa, tipo);
     }
 
     async processVehicleExit(placa: string): Promise<VehicleEntry> {

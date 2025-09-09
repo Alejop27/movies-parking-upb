@@ -2,8 +2,8 @@ import { ParkingServiceImpl } from '../../../../application/service/ParkingServi
 import { RegisterEntryUseCaseImpl } from '../../../../application/usecase/RegisterEntryUseCaseImpl'
 import { ProcessExitUseCaseImpl } from '../../../../application/usecase/ProcessExitUseCaseImpl'
 import AbstractRouter from '../../../../../api/domain/model/AbstractRouter'
-import { InMemoryParkingRepository } from '../../repository/InMemoryParkingRepository'
-import { InMemoryClientRepository } from '../../repository/InMemoryClientRepository'
+import { JsonParkingRepository } from '../../repository/JsonParkingRepository'
+import { JsonClientRepository } from '../../repository/JsonClientRepository'
 import { SimpleAccountingNotifier } from '../../../../../accounting/infrastructure/adapter/notifier/AccountingNotifierImpl'
 import ParkingController from '../controller/ParkingController'
 import ParkingRouter from '../router/ParkingRouter'
@@ -11,12 +11,12 @@ import { AccountingService } from '../../../../../accounting/application/service
 
 export default class ParkingRouterFactory {
     static readonly create = (accountingService: AccountingService): AbstractRouter => {
-        const parkingRepository = new InMemoryParkingRepository()
+        const parkingRepository = new JsonParkingRepository()
         if (!parkingRepository) {
             throw new Error('Failed to create ParkingRepository')
         }
 
-        const clientRepository = new InMemoryClientRepository()
+        const clientRepository = new JsonClientRepository()
         if (!clientRepository) {
             throw new Error('Failed to create ClientRepository')
         }

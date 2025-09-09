@@ -1,0 +1,50 @@
+[
+  {
+    "registroId": "uuid-park-001",
+    "placa": "CAR-111",
+    "tipo": "CARRO",
+    "horaIngreso": "2025-09-02T10:00:00Z",
+    "finalizado": true,
+    "horaSalida": "2025-09-02T11:30:00Z",
+    "tiempoEstacionadoMinutos": 90,
+    "montoAPagar": 
+    9000
+  },
+  {
+    "registroId": "uuid-park-002",
+    "placa": "MOTO-222",
+    "tipo": "MOTO",
+    "horaIngreso": "2025-09-02T14:00:00Z",
+    "finalizado": true,
+    "horaSalida": "2025-09-02T14:20:00Z",
+    "tiempoEstacionadoMinutos": 20,
+    "montoAPagar": 2000
+  },
+  {
+    "registroId": "uuid-park-003",
+    "placa": "VIP-333",
+    "tipo": "CARRO",
+    "horaIngreso": "2025-09-02T16:00:00Z",
+    "finalizado": true,
+    "horaSalida": "2025-09-02T18:00:00Z",
+    "tiempoEstacionadoMinutos": 120,
+    "montoAPagar": 12000
+  },
+  {
+    "registroId": "uuid-park-004",
+    "placa": "PARKED-444",
+    "tipo": "MOTO",
+    "horaIngreso": "2025-09-02T20:00:00Z",
+    "finalizado": false,
+    "horaSalida": null,
+    "tiempoEstacionadoMinutos": null,
+    "montoAPagar": null
+  },
+  {
+    "registroId": "uuid-park-1757446527570",
+    "placa": "XYZ-123",
+    "tipo": "CARRO",
+    "horaIngreso": "2025-09-09T19:35:27.570Z",
+    "finalizado": false
+  }
+]

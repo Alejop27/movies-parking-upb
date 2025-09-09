@@ -9,16 +9,24 @@ export default class ParkingController extends AbstractController {
 
     registerEntry = async (req: Request, res: Response): Promise<void> => {
         try {
-            const { placa } = req.body;
+            const { placa, tipo } = req.body;
+
             if (!placa) {
-                res.status(400).json({ error: 'La placa es requerida' });
+                res.status(400).json({ error: 'La placa es requerida.' });
                 return;
             }
 
-            const result = await this.parkingService.registerVehicleEntry(placa);
+            if (!tipo) {
+                res.status(400).json({ error: 'El tipo de vehículo es requerido (CARRO o MOTO).' });
+                return;
+            }
+
+            const result = await this.parkingService.registerVehicleEntry(placa, tipo);
+
             res.status(201).json({
                 registroId: result.registroId,
                 placa: result.placa,
+                tipo: result.tipo,
                 horaIngreso: result.horaIngreso
             });
         } catch (error: any) {
@@ -29,12 +37,14 @@ export default class ParkingController extends AbstractController {
     processExit = async (req: Request, res: Response): Promise<void> => {
         try {
             const { placa } = req.body;
+
             if (!placa) {
-                res.status(400).json({ error: 'La placa es requerida' });
+                res.status(400).json({ error: 'La placa es requerida.' });
                 return;
             }
 
             const result = await this.parkingService.processVehicleExit(placa);
+
             res.status(200).json({
                 placa: result.placa,
                 tipo: result.tipo,
