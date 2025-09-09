@@ -1,41 +1,58 @@
 import { ProcessExitUseCase } from '../../domain/port/driver/usecase/ProcessExitUseCase';
-import { ParkingRecord } from '../../domain/model/ParkingRecord';
+import { VehicleEntry } from '../../domain/model/VehicleEntry';
+import { ParkingTransaction } from '../../domain/model/ParkingTransaction';
 import { ParkingRepository } from '../../domain/interfaces/ParkingRepository';
 import { ClientRepository } from '../../domain/interfaces/ClientRepository';
-import { VehicleType } from '../../domain/model/Vehicle';
+import { AccountingNotifier } from '../../domain/interfaces/AccountingNotifier';
 
 export class ProcessExitUseCaseImpl implements ProcessExitUseCase {
-    private readonly CARRO_TARIFA = 88; // pesos por minuto
-    private readonly MOTO_TARIFA = 66;  // pesos por minuto
-    private readonly IVA = 0.19;
+    private readonly RATES = { CARRO: 88, MOTO: 66, IVA: 0.19 };
 
     constructor(
         private readonly parkingRepository: ParkingRepository,
-        private readonly clientRepository: ClientRepository
+        private readonly clientRepository: ClientRepository,
+        private readonly accountingNotifier: AccountingNotifier
     ) {}
 
-    async execute(placa: string): Promise<ParkingRecord> {
+    async execute(placa: string): Promise<VehicleEntry> {
         // Buscar registro activo
-        const activeRecord = await this.parkingRepository.findActiveRecordByPlaca(placa);
-        if (!activeRecord) {
-            throw new Error(`No se encontró registro activo para la placa ${placa}`);
+        const activeEntry = await this.parkingRepository.findActiveByPlaca(placa);
+        if (!activeEntry) {
+            throw new Error(`No se encontró un registro activo para la placa ${placa}`);
         }
 
+        // Calcular tiempo y monto
         const horaSalida = new Date().toISOString();
-        const horaIngreso = new Date(activeRecord.horaIngreso);
+        const horaIngreso = new Date(activeEntry.horaIngreso);
         const tiempoMinutos = Math.ceil((new Date(horaSalida).getTime() - horaIngreso.getTime()) / (1000 * 60));
 
-        // Verificar si es cliente de tienda
-        const storeClient = await this.clientRepository.isStoreClient(placa);
-        let monto = 0;
+        const esClienteTienda = await this.clientRepository.isStoreClient(placa);
+        let montoAPagar = 0;
 
-        if (!storeClient || !storeClient.esClienteTienda) {
-            // Calcular tarifa según tipo de vehículo
-            const tarifa = activeRecord.tipo === VehicleType.CARRO ? this.CARRO_TARIFA : this.MOTO_TARIFA;
-            const subtotal = tiempoMinutos * tarifa;
-            monto = Math.round(subtotal * (1 + this.IVA));
+        if (!esClienteTienda) {
+            const tarifaBase = activeEntry.tipo === 'CARRO' ? this.RATES.CARRO : this.RATES.MOTO;
+            const subtotal = tiempoMinutos * tarifaBase;
+            montoAPagar = Math.round(subtotal * (1 + this.RATES.IVA));
         }
 
-        return await this.parkingRepository.processExit(placa, horaSalida, tiempoMinutos, monto);
+        // Actualizar registro de parking
+        const exitEntry = await this.parkingRepository.updateExit(placa, horaSalida, tiempoMinutos, montoAPagar);
+
+        // Notificar a contabilidad
+        const transaction: ParkingTransaction = {
+            registroId: exitEntry.registroId,
+            placa: exitEntry.placa,
+            tipo: exitEntry.tipo,
+            horaIngreso: exitEntry.horaIngreso,
+            horaSalida: horaSalida,
+            tiempoMinutos: tiempoMinutos,
+            monto: montoAPagar,
+            esClienteTienda,
+            fecha: new Date(horaSalida).toISOString().split('T')[0] || ''
+        };
+
+        await this.accountingNotifier.notifyTransaction(transaction);
+
+        return exitEntry;
     }
 }

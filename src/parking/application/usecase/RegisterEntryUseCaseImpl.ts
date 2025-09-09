@@ -1,17 +1,42 @@
 import { RegisterEntryUseCase } from '../../domain/port/driver/usecase/RegisterEntryUseCase';
-import { ParkingRecord } from '../../domain/model/ParkingRecord';
+import { VehicleEntry, PARKING_LIMITS } from '../../domain/model/VehicleEntry';
 import { ParkingRepository } from '../../domain/interfaces/ParkingRepository';
+import { ClientRepository } from '../../domain/interfaces/ClientRepository';
 
 export class RegisterEntryUseCaseImpl implements RegisterEntryUseCase {
-    constructor(private readonly parkingRepository: ParkingRepository) {}
+    constructor(
+        private readonly parkingRepository: ParkingRepository,
+        private readonly clientRepository: ClientRepository
+    ) {}
 
-    async execute(placa: string): Promise<ParkingRecord> {
-        // Validar que no existe un registro activo para esta placa
-        const activeRecord = await this.parkingRepository.findActiveRecordByPlaca(placa);
-        if (activeRecord) {
-            throw new Error(`Vehículo con placa ${placa} ya está registrado en el parqueadero`);
+    async execute(placa: string): Promise<VehicleEntry> {
+        // Verificar si ya existe registro activo
+        const existingEntry = await this.parkingRepository.findActiveByPlaca(placa);
+        if (existingEntry) {
+            throw new Error(`El vehículo con placa ${placa} ya se encuentra en el parqueadero`);
         }
 
-        return await this.parkingRepository.registerEntry(placa);
+        // Determinar tipo de vehículo
+        let vehicleType = await this.clientRepository.getClientType(placa) || 'CARRO';
+        
+        // Si no es cliente registrado, inferir por formato de placa
+        if (!await this.clientRepository.isStoreClient(placa)) {
+            vehicleType = this.inferVehicleTypeFromPlaca(placa);
+        }
+
+        // Verificar disponibilidad de espacios
+        const activeCount = await this.parkingRepository.countActiveByType(vehicleType);
+        const limit = vehicleType === 'CARRO' ? PARKING_LIMITS.carros : PARKING_LIMITS.motos;
+        
+        if (activeCount >= limit) {
+            throw new Error(`No hay espacios disponibles para ${vehicleType.toLowerCase()}s`);
+        }
+
+        return await this.parkingRepository.registerEntry(placa, vehicleType);
+    }
+
+    private inferVehicleTypeFromPlaca(placa: string): string {
+        // Lógica simple para inferir tipo por formato de placa
+        return placa.length <= 6 ? 'MOTO' : 'CARRO';
     }
 }

@@ -1,5 +1,5 @@
-import { ParkingRecord } from '../../../model/ParkingRecord';
+import { VehicleEntry } from '../../../model/VehicleEntry';
 
 export interface RegisterEntryUseCase {
-    execute(placa: string): Promise<ParkingRecord>;
+    execute(placa: string): Promise<VehicleEntry>;
 }
