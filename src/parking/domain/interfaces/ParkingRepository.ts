@@ -1,9 +1,8 @@
-import { ParkingRecord } from '../model/ParkingRecord';
-import { DailyBalance } from '../model/DailyBalance';
+import { VehicleEntry } from '../model/VehicleEntry';
 
 export interface ParkingRepository {
-    registerEntry(placa: string): Promise<ParkingRecord>;
-    findActiveRecordByPlaca(placa: string): Promise<ParkingRecord | null>;
-    processExit(placa: string, horaSalida: string, tiempoMinutos: number, monto: number): Promise<ParkingRecord>;
-    getDailyBalance(fecha: string): Promise<DailyBalance>;
+    registerEntry(placa: string, tipo: string): Promise<VehicleEntry>;
+    findActiveByPlaca(placa: string): Promise<VehicleEntry | null>;
+    updateExit(placa: string, horaSalida: string, tiempoMinutos: number, monto: number): Promise<VehicleEntry>;
+    countActiveByType(tipo: string): Promise<number>;
 }

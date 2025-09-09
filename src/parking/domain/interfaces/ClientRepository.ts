@@ -1,5 +1,4 @@
-import { StoreClient } from '../model/StoreClient';
-
 export interface ClientRepository {
-    isStoreClient(placa: string): Promise<StoreClient | null>;
+    isStoreClient(placa: string): Promise<boolean>;
+    getClientType(placa: string): Promise<string | null>;
 }
