@@ -1,8 +1,11 @@
 import { Request, Response } from 'express';
+import AbstractController from '../../../../../api/domain/model/AbstractController';
 import { ParkingService } from '../../../../application/service/ParkingService';
 
-export class ParkingController {
-    constructor(private readonly parkingService: ParkingService) {}
+export default class ParkingController extends AbstractController {
+    constructor(private readonly parkingService: ParkingService) {
+        super();
+    }
 
     registerEntry = async (req: Request, res: Response): Promise<void> => {
         try {

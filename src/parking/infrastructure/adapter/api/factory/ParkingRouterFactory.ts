@@ -1,34 +1,56 @@
-import { Router } from 'express';
-import { ParkingController } from '../controller/ParkingController';
-import { ParkingRouter } from '../router/ParkingRouter';
-import { ParkingServiceImpl } from '../../../../application/service/ParkingServiceImpl';
-import { RegisterEntryUseCaseImpl } from '../../../../application/usecase/RegisterEntryUseCaseImpl';
-import { ProcessExitUseCaseImpl } from '../../../../application/usecase/ProcessExitUseCaseImpl';
-import { InMemoryParkingRepository } from '../../repository/InMemoryParkingRepository';
-import { InMemoryClientRepository } from '../../repository/InMemoryClientRepository';
-import { AccountingService } from '../../../../../accounting/application/service/AccountingService';
-import { AccountingNotifierImpl } from '../../../../../accounting/infrastructure/adapter/notifier/AccountingNotifierImpl';
+import { ParkingServiceImpl } from '../../../../application/service/ParkingServiceImpl'
+import { RegisterEntryUseCaseImpl } from '../../../../application/usecase/RegisterEntryUseCaseImpl'
+import { ProcessExitUseCaseImpl } from '../../../../application/usecase/ProcessExitUseCaseImpl'
+import AbstractRouter from '../../../../../api/domain/model/AbstractRouter'
+import { InMemoryParkingRepository } from '../../repository/InMemoryParkingRepository'
+import { InMemoryClientRepository } from '../../repository/InMemoryClientRepository'
+import { SimpleAccountingNotifier } from '../../../../../accounting/infrastructure/adapter/notifier/AccountingNotifierImpl'
+import ParkingController from '../controller/ParkingController'
+import ParkingRouter from '../router/ParkingRouter'
+import { AccountingService } from '../../../../../accounting/application/service/AccountingService'
 
 export default class ParkingRouterFactory {
-    static create(accountingService: AccountingService): Router {
-        // Repositorios
-        const parkingRepository = new InMemoryParkingRepository();
-        const clientRepository = new InMemoryClientRepository();
-        
-        // Notificador a contabilidad
-        const accountingNotifier = new AccountingNotifierImpl(accountingService);
+    static readonly create = (accountingService: AccountingService): AbstractRouter => {
+        const parkingRepository = new InMemoryParkingRepository()
+        if (!parkingRepository) {
+            throw new Error('Failed to create ParkingRepository')
+        }
 
-        // Casos de uso
-        const registerEntryUseCase = new RegisterEntryUseCaseImpl(parkingRepository, clientRepository);
-        const processExitUseCase = new ProcessExitUseCaseImpl(parkingRepository, clientRepository, accountingNotifier);
+        const clientRepository = new InMemoryClientRepository()
+        if (!clientRepository) {
+            throw new Error('Failed to create ClientRepository')
+        }
 
-        // Servicio
-        const parkingService = new ParkingServiceImpl(registerEntryUseCase, processExitUseCase);
+        const accountingNotifier = new SimpleAccountingNotifier(accountingService)
+        if (!accountingNotifier) {
+            throw new Error('Failed to create AccountingNotifier')
+        }
 
-        // Controlador y router
-        const parkingController = new ParkingController(parkingService);
-        const parkingRouter = new ParkingRouter(parkingController);
-        
-        return parkingRouter.getRouter();
+        const registerEntryUseCase = new RegisterEntryUseCaseImpl(parkingRepository, clientRepository)
+        if (!registerEntryUseCase) {
+            throw new Error('Failed to create RegisterEntryUseCase')
+        }
+
+        const processExitUseCase = new ProcessExitUseCaseImpl(parkingRepository, clientRepository, accountingNotifier)
+        if (!processExitUseCase) {
+            throw new Error('Failed to create ProcessExitUseCase')
+        }
+
+        const parkingService = new ParkingServiceImpl(registerEntryUseCase, processExitUseCase)
+        if (!parkingService) {
+            throw new Error('Failed to create ParkingService')
+        }
+
+        const parkingController = new ParkingController(parkingService)
+        if (!parkingController) {
+            throw new Error('Failed to create ParkingController')
+        }
+
+        const parkingRouter = new ParkingRouter(parkingController)
+        if (!parkingRouter) {
+            throw new Error('Failed to create ParkingRouter')
+        }
+
+        return parkingRouter
     }
 }

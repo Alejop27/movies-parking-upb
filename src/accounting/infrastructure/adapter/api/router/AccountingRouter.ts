@@ -1,14 +1,13 @@
-import { Router } from 'express';
-import { AccountingController } from '../controller/AccountingController';
+import AbstractRouter from '../../../../../api/domain/model/AbstractRouter'
+import AccountingController from '../controller/AccountingController'
 
-export class AccountingRouter {
-    constructor(private readonly accountingController: AccountingController) {}
+export default class AccountingRouter extends AbstractRouter {
+    constructor(private readonly accountingController: AccountingController) {
+        super('/api/v1.0/estacionamiento')
+        this.routes()
+    }
 
-    getRouter(): Router {
-        const router = Router();
-
-        router.get('/reportes/balance-diario', this.accountingController.getDailyBalance);
-
-        return router;
+    protected routes(): void {
+        this.router.get('/reportes/balance-diario', this.accountingController.getDailyBalance)
     }
 }

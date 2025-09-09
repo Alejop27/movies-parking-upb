@@ -1,8 +1,11 @@
 import { Request, Response } from 'express';
+import AbstractController from '../../../../../api/domain/model/AbstractController';
 import { AccountingService } from '../../../../application/service/AccountingService';
 
-export class AccountingController {
-    constructor(private readonly accountingService: AccountingService) {}
+export default class AccountingController extends AbstractController {
+    constructor(private readonly accountingService: AccountingService) {
+        super();
+    }
 
     getDailyBalance = async (req: Request, res: Response): Promise<void> => {
         try {
